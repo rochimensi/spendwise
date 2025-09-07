@@ -1,5 +1,5 @@
 import * as React from "react";
-import { cn } from "./utils";
+import { cn } from "@/app/components/ui/utils";
 
 interface SelectOption {
   value: string;

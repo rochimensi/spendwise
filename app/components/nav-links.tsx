@@ -1,8 +1,8 @@
 'use client';
 
 import Link from 'next/link';
-import { Home, PlusCircle, Brain, History } from "lucide-react";
 import { usePathname } from 'next/navigation';
+import { Brain, History, Home, PlusCircle } from "lucide-react";
 
 export function NavLinks() {
   const pathname = usePathname();

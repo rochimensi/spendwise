@@ -1,69 +1,43 @@
-import { PlusCircle, TrendingUp, DollarSign, Target } from "lucide-react";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+'use client';
+
 import Link from 'next/link';
-import { PieChart } from '@/app/components/pie-chart';
-import { BarChart } from '@/app/components/bar-chart';
+import { DollarSign, PlusCircle, Target, TrendingUp } from "lucide-react";
 import { AreaChart } from '@/app/components/area-chart';
+import { BarChart } from '@/app/components/bar-chart';
+import { PieChart } from '@/app/components/pie-chart';
 import { Badge } from "@/app/components/ui/badge";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/app/components/ui/card";
+import Transaction from '@/app/lib/models/Transaction';
 
-interface Expense {
-    id: string;
-    amount: number;
-    category: string;
-    description: string;
-    date: string;
-    type: 'expense' | 'income';
-  }
+interface DashboardProps {
+  recentTransactions: Transaction[];
+  categoryData: Array<{name: string, value: number, color: string}>;
+  weeklySpending: Array<{day: string, amount: number}>;
+  monthlyTrends: Array<{month: string, income: number, expenses: number, savings: number}>;
+  summaryStats: {
+    totalExpenses: number;
+    totalIncome: number;
+    savings: number;
+    transactionCount: number;
+  };
+}
 
-export function Dashboard({  }) {
-    // Mock data for demonstration
-    const totalExpenses = 2847.50;
-    const monthlyIncome = 5200.00;
-    const savings = monthlyIncome - totalExpenses;
-    const savingsGoal = 3000.00;
-
+export function Dashboard({ 
+  recentTransactions, 
+  categoryData, 
+  weeklySpending, 
+  monthlyTrends, 
+  summaryStats 
+}: DashboardProps) {
+    const { totalExpenses, savings } = summaryStats;
+    const savingsGoal = 5000.00; // TODO: Make this dynamic
     const savingsProgress = (savings / savingsGoal) * 100;
 
-    const recentTransactions: Expense[] = [
-        { id: '1', amount: 45.99, category: 'Food', description: 'Grocery shopping', date: '2025-08-27', type: 'expense' },
-        { id: '2', amount: 12.50, category: 'Transport', description: 'Bus fare', date: '2025-08-26', type: 'expense' },
-        { id: '3', amount: 89.00, category: 'Utilities', description: 'Electricity bill', date: '2025-08-25', type: 'expense' },
-        { id: '4', amount: 2600.00, category: 'Salary', description: 'Monthly salary', date: '2025-08-24', type: 'income' },
-      ];
-    
-      // Chart data
-      const categoryData = [
-        { name: 'Food & Dining', value: 876.50, color: 'var(--chart-1)' },
-        { name: 'Transportation', value: 567.20, color: 'var(--chart-2)' },
-        { name: 'Entertainment', value: 423.80, color: 'var(--chart-3)' },
-        { name: 'Utilities', value: 356.00, color: 'var(--chart-4)' },
-        { name: 'Shopping', value: 624.00, color: 'var(--chart-5)' },
-      ];
-    
-      const weeklySpending = [
-        { day: 'Mon', amount: 45.50 },
-        { day: 'Tue', amount: 23.80 },
-        { day: 'Wed', amount: 67.20 },
-        { day: 'Thu', amount: 89.10 },
-        { day: 'Fri', amount: 156.40 },
-        { day: 'Sat', amount: 234.60 },
-        { day: 'Sun', amount: 78.90 },
-      ];
-
-      const monthlyTrend = [
-        { month: 'Mar', income: 5200, expenses: 2900, savings: 2300 },
-        { month: 'Apr', income: 5200, expenses: 3100, savings: 2100 },
-        { month: 'May', income: 5400, expenses: 2800, savings: 2600 },
-        { month: 'Jun', income: 5200, expenses: 3200, savings: 2000 },
-        { month: 'Jul', income: 5200, expenses: 2650, savings: 2550 },
-        { month: 'Aug', income: 5200, expenses: 2847, savings: 2353 },
-      ];
-      
     return (
         <div className="space-y-6 pb-20">
             <div className="text-center py-4">
                 <h2 className="text-2xl font-bold">Welcome back! 👋</h2>
-                <p className="text-muted-foreground">Here's your financial overview for August</p>
+                <p className="text-muted-foreground">Here's your financial overview for October 2024</p>
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -80,7 +54,6 @@ export function Dashboard({  }) {
                     </CardContent>
                 </Card>
             
-            {/* Available */}
                 <Card>
                     <CardHeader className="pb-2">
                         <CardTitle className="text-sm">Available</CardTitle>
@@ -98,7 +71,7 @@ export function Dashboard({  }) {
             <div className="grid grid-cols-2 gap-4 mt-4">
                 <Link href="/add" className="flex flex-row items-center justify-center h-12 px-4 py-2 has-[>svg]:px-3 bg-primary text-primary-foreground hover:bg-primary/90 rounded-md">
                     <PlusCircle className="h-4 w-4 mr-2" />
-                    Add Expense
+                    Add Transaction
                 </Link>
                 <Link href="/advisor" className="flex flex-row items-center justify-center h-12 border bg-background text-foreground hover:bg-accent hover:text-accent-foreground rounded-md">
                     <TrendingUp className="h-4 w-4 mr-2" />
@@ -106,14 +79,13 @@ export function Dashboard({  }) {
                 </Link>
             </div>
 
-            {/* Savings Goal */}
             <Card>
                 <CardHeader>
                     <CardTitle className="flex items-center gap-2">
                         <Target className="h-5 w-5" />
                         Savings Goal
                     </CardTitle>
-                    <CardDescription>Your progress towards $3,000 goal</CardDescription>
+                    <CardDescription>Your progress towards $5,000 goal</CardDescription>
                 </CardHeader>
                 <CardContent>
                 <div className="space-y-3">
@@ -137,7 +109,6 @@ export function Dashboard({  }) {
                 </CardContent>
             </Card>
 
-            {/* Spending by Category */}
             <Card>
                 <CardHeader>
                     <CardTitle>Spending by Category</CardTitle>
@@ -154,15 +125,14 @@ export function Dashboard({  }) {
                         className="w-3 h-3 rounded-full" 
                         style={{ backgroundColor: category.color }}
                         />
-                        <span className="text-xs text-muted-foreground">{category.name}</span>
-                        <span className="text-xs font-medium ml-auto">${category.value}</span>
+                        <span className="text-xs text-muted-foreground capitalize">{category.name}</span>
+                        <span className="text-xs font-medium ml-auto">${category.value.toFixed(2)}</span>
                     </div>
                     ))}
                 </div>
                 </CardContent>
             </Card>
 
-            {/* This Week's Spending */}
             <Card>
                 <CardHeader>
                     <CardTitle>This Week's Spending</CardTitle>
@@ -177,17 +147,16 @@ export function Dashboard({  }) {
                 </CardContent>
             </Card>
 
-            {/* 6-Month Financial Trend */}
             <Card>
                 <CardHeader>
-                    <CardTitle>6-Month Financial Trend</CardTitle>
+                    <CardTitle>10-Month Financial Trend</CardTitle>
                     <CardDescription>
-                        Income vs Expenses vs Savings
+                        Income vs Expenses vs Savings (Jan-Oct 2024)
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
                     <div className="h-48">
-                        <AreaChart data={monthlyTrend} />
+                        <AreaChart data={monthlyTrends} />
                     </div>
                     <div className="flex justify-center gap-6 mt-4">
                         <div className="flex items-center gap-2">
@@ -212,7 +181,6 @@ export function Dashboard({  }) {
                 </CardContent>
             </Card>
 
-            {/* Recent Transactions */}
             <Card>
                 <CardHeader>
                     <CardTitle>Recent Transactions</CardTitle>
@@ -233,24 +201,23 @@ export function Dashboard({  }) {
                                 </p>
                                 <Badge
                                     variant="secondary"
-                                    className="text-xs"
+                                    className="text-xs capitalize"
                                 >
                                     {transaction.category}
                                 </Badge>
                                 </div>
                                 <p className="text-sm text-muted-foreground">
-                                {transaction.date}
+                                {transaction.date.toString()}
                                 </p>
                             </div>
                             <div
                                 className={`font-semibold ${transaction.type === "income" ? "text-green-600" : "text-red-600"}`}
                             >
                                 {transaction.type === "income" ? "+" : "-"}$
-                                {transaction.amount.toFixed(2)}
+                                {Math.abs(transaction.amount).toFixed(2)}
                             </div>
                         </div>
                     ))}
-                    {/* View All Transactions */}
                     <div className="flex justify-start">
                         <Link href="/history" className="text-sm text-primary hover:underline">View All Transactions</Link>
                     </div>

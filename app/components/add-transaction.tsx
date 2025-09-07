@@ -1,61 +1,68 @@
 'use client';
 
 import { useState } from "react";
-import { ArrowLeft, Save } from "lucide-react";
+import Link from "next/link";
+import { ArrowLeft, Loader2, Save } from "lucide-react";
+import { Badge } from "@/app/components/ui/badge";
 import { Button } from "@/app/components/ui/button";
-import { Label } from "@/app/components/ui/label";
 import { Input } from "@/app/components/ui/input";
+import { Label } from "@/app/components/ui/label";
 import { SelectInput } from "@/app/components/ui/select";
 import { Textarea } from "@/app/components/ui/textarea";
-import { Badge } from "@/app/components/ui/badge";
-import Link from "next/link";
+import { TRANSACTION_CATEGORIES } from "@/app/lib/constants";
 
-
-interface AddTransactionProps {
-  onSave: (expense: any) => void;
-}
-
-export function AddTransaction({ onSave }: AddTransactionProps) {
+export function AddTransaction() {
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [description, setDescription] = useState('');
   const [type, setType] = useState<'expense' | 'income'>('expense');
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
 
-  const categories = [
-    'Food & Dining',
-    'Transportation',
-    'Shopping',
-    'Entertainment',
-    'Utilities',
-    'Healthcare',
-    'Education',
-    'Travel',
-    'Salary',
-    'Freelance',
-    'Investments',
-    'Other'
-  ];
-
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!amount || !category || !description) return;
     
-    const transaction = {
-      id: Date.now().toString(),
-      amount: parseFloat(amount),
-      category,
-      description,
-      date: new Date().toISOString().split('T')[0],
-      type
-    };
+    setIsLoading(true);
+    setError(null);
+    setSuccess(false);
     
-    onSave(transaction);
-    
-    // Reset form
-    setAmount('');
-    setCategory('');
-    setDescription('');
-    setType('expense');
+    try {
+      const formData = new FormData();
+      formData.append('amount', amount);
+      formData.append('category', category);
+      formData.append('description', description);
+      formData.append('type', type);
+      formData.append('date', new Date().toISOString().split('T')[0]);
+      
+      const response = await fetch('/api/transactions', {
+        method: 'POST',
+        body: formData,
+      });
+      
+      const result = await response.json();
+      
+      if (!response.ok) {
+        throw new Error(result.message || 'Failed to save transaction');
+      }
+      
+      setSuccess(true);
+      
+      // Reset form
+      setAmount('');
+      setCategory('');
+      setDescription('');
+      setType('expense');
+      
+      // Show success message briefly
+      setTimeout(() => setSuccess(false), 3000);
+      
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'An unexpected error occurred');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -116,9 +123,15 @@ export function AddTransaction({ onSave }: AddTransactionProps) {
 
             <div className="space-y-2">
               <Label htmlFor="category">Category</Label>
-              <SelectInput value={category} onChange={(e: any) => setCategory(e.target.value)} options={categories.map((category) => ({ value: category, label: category }))} required>
-                  <option value="">Select a category</option>
-              </SelectInput>
+              <SelectInput 
+                value={category} 
+                onChange={(e) => setCategory(e.target.value)} 
+                options={[
+                  { value: '', label: 'Select a category' },
+                  ...TRANSACTION_CATEGORIES.map((category) => ({ value: category, label: category }))
+                ]} 
+                required
+              />
             </div>
 
             <div className="space-y-2">
@@ -131,6 +144,20 @@ export function AddTransaction({ onSave }: AddTransactionProps) {
                 required
               />
             </div>
+
+            {error && (
+              <div className="p-4 bg-red-100 border border-red-200 rounded-lg">
+                <p className="text-sm text-red-800 font-medium">Error</p>
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {success && (
+              <div className="p-4 bg-green-100 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-800 font-medium">Success!</p>
+                <p className="text-sm text-green-700">Transaction saved successfully.</p>
+              </div>
+            )}
 
             {amount && category && description && (
               <div className="p-4 bg-sky-100 rounded-lg">
@@ -154,9 +181,22 @@ export function AddTransaction({ onSave }: AddTransactionProps) {
               </div>
             )}
 
-            <Button type="submit" className="w-full" disabled={!amount || !category || !description}>
-              <Save className="h-4 w-4 mr-2" />
-              Save Transaction
+            <Button 
+              type="submit" 
+              className="w-full" 
+              disabled={!amount || !category || !description || isLoading}
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                  Saving...
+                </>
+              ) : (
+                <>
+                  <Save className="h-4 w-4 mr-2" />
+                  Save Transaction
+                </>
+              )}
             </Button>
           </form>
         </div>

@@ -1,10 +1,6 @@
 "use client";
 
-import { BarChart as RechartsBarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid, ResponsiveContainer } from "recharts";
+import { Bar, BarChart as RechartsBarChart, CartesianGrid, ResponsiveContainer, XAxis, YAxis } from "recharts";
 
 function BarChart({data}: {data: Array<{day: string, amount: number}>}): React.ReactNode {
   return (

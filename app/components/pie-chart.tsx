@@ -1,6 +1,6 @@
 "use client";
 
-import { PieChart as RechartsPieChart, Pie, Cell, ResponsiveContainer } from "recharts";
+import { Cell, Pie, PieChart as RechartsPieChart, ResponsiveContainer } from "recharts";
 
 function PieChart({data}: {data: Array<{name: string, value: number, color: string}>}): React.ReactNode {
   return (
