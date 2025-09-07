@@ -269,64 +269,91 @@ With this setup, you now have:
 The following diagram shows how SpendWise would be deployed on AWS using a containerized, scalable architecture:
 
 ```mermaid
-C4Deployment
-    title SpendWise - AWS Containerized Architecture
-
-    Deployment_Node(aws, "AWS Cloud", "Amazon Web Services") {
-        Deployment_Node(dns, "DNS & CDN", "Global Distribution") {
-            Container(route53, "Route 53", "DNS", "DNS resolution and health checks")
-            Container(cloudfront, "CloudFront", "CDN", "Global content delivery and DDoS protection")
-        }
+graph TB
+    subgraph "AWS Cloud"
+        subgraph "Global Infrastructure"
+            R53[Route 53<br/>DNS & Health Checks]
+            CF[CloudFront<br/>Global CDN]
+        end
         
-        Deployment_Node(api, "API Gateway", "Request Management") {
-            Container(apigateway, "API Gateway", "AWS", "Request routing, throttling, and API management")
-        }
+        subgraph "Compute Layer"
+            AG[API Gateway<br/>Request Management]
+            ALB[Application Load Balancer<br/>Traffic Distribution]
+        end
         
-        Deployment_Node(lb, "Load Balancer", "Traffic Distribution") {
-            Container(alb, "Application Load Balancer", "AWS", "Traffic distribution and health checks")
-        }
+        subgraph "Container Services"
+            ECS[Amazon ECS<br/>Container Orchestration]
+            Fargate[Amazon Fargate<br/>Serverless Containers]
+            
+            subgraph "SpendWise Application"
+                NextJS[Next.js Application]
+                Frontend[React Frontend<br/>• Dashboard<br/>• Transaction Management<br/>• AI Advisor<br/>• Charts & Analytics]
+                API[API Routes<br/>• /api/transactions<br/>• /api/ai-advisor<br/>• /api/transactions/search]
+                Logic[Server Logic<br/>• Sequelize ORM<br/>• Zod Validations<br/>• Business Logic]
+            end
+        end
         
-        Deployment_Node(ecs, "Container Services", "ECS Cluster") {
-            Deployment_Node(fargate, "Fargate", "Serverless Containers") {
-                Container(spendwise, "SpendWise App", "Next.js", "Full-stack financial management application") {
-                    Component(frontend, "Frontend", "React", "Dashboard, Transactions, AI Advisor, Charts")
-                    Component(api_routes, "API Routes", "Next.js", "/api/transactions, /api/ai-advisor")
-                    Component(server_logic, "Server Logic", "Node.js", "Sequelize ORM, Zod Validations")
-                }
-            }
-        }
+        subgraph "Data Layer"
+            RDS[Amazon RDS PostgreSQL<br/>Multi-AZ Deployment]
+            Primary[(Primary DB<br/>AZ-1)]
+            Standby[(Standby DB<br/>AZ-2)]
+            S3[Amazon S3<br/>Static Assets & Backups]
+        end
         
-        Deployment_Node(data, "Data Layer", "Database & Storage") {
-            Deployment_Node(rds, "RDS Multi-AZ", "PostgreSQL") {
-                ContainerDb(primary_db, "Primary DB", "PostgreSQL", "Main database instance (AZ-1)")
-                ContainerDb(standby_db, "Standby DB", "PostgreSQL", "Standby instance (AZ-2)")
-            }
-            Container(s3, "S3", "AWS", "Static assets and database backups")
-        }
-        
-        Deployment_Node(auth, "Authentication", "User Management") {
-            Container(cognito, "Amazon Cognito", "AWS", "User identity and access management")
-        }
-        
-        Deployment_Node(monitoring, "Monitoring", "Observability") {
-            Container(cloudwatch, "CloudWatch", "AWS", "Metrics, logs, and dashboards")
-            Container(rds_insights, "RDS Performance Insights", "AWS", "Database performance monitoring")
-        }
-    }
-
-    Rel(route53, cloudfront, "Routes DNS queries")
-    Rel(cloudfront, apigateway, "Serves cached content")
-    Rel(apigateway, alb, "Routes API requests")
-    Rel(alb, spendwise, "Load balances traffic")
-    Rel(spendwise, primary_db, "Reads/Writes", "Sequelize ORM")
-    Rel(spendwise, standby_db, "Failover", "Automatic failover")
-    Rel(primary_db, standby_db, "Replicates", "Synchronous replication")
-    Rel(spendwise, s3, "Stores assets", "Static files")
-    Rel(primary_db, s3, "Backups", "Automated backups")
-    Rel(apigateway, cognito, "Authenticates", "User validation")
-    Rel(spendwise, cloudwatch, "Sends metrics", "Application monitoring")
-    Rel(primary_db, rds_insights, "Performance data", "Database metrics")
-    Rel(cloudwatch, rds_insights, "Aggregates", "Unified monitoring")
+        subgraph "Security & Monitoring"
+            Cognito[Amazon Cognito<br/>User Authentication]
+            CW[CloudWatch<br/>Monitoring & Logging]
+            RDSInsights[RDS Performance Insights<br/>Database Monitoring]
+        end
+    end
+    
+    %% User connections
+    User[Users] --> R53
+    User --> CF
+    
+    %% Infrastructure flow
+    R53 --> CF
+    CF --> AG
+    AG --> ALB
+    ALB --> ECS
+    ECS --> Fargate
+    Fargate --> NextJS
+    
+    %% Application internal flow
+    NextJS --> Frontend
+    NextJS --> API
+    NextJS --> Logic
+    
+    %% Data connections
+    API --> RDS
+    Logic --> RDS
+    RDS --> Primary
+    RDS --> Standby
+    Primary -.-> Standby
+    
+    %% Storage connections
+    NextJS --> S3
+    RDS --> S3
+    
+    %% Security connections
+    AG --> Cognito
+    API --> Cognito
+    
+    %% Monitoring connections
+    ECS --> CW
+    RDS --> RDSInsights
+    CW --> RDSInsights
+    
+    %% Styling
+    classDef aws fill:#ff9900,stroke:#232f3e,stroke-width:2px,color:#fff
+    classDef app fill:#61dafb,stroke:#20232a,stroke-width:2px,color:#000
+    classDef data fill:#336791,stroke:#fff,stroke-width:2px,color:#fff
+    classDef security fill:#ff6b6b,stroke:#fff,stroke-width:2px,color:#fff
+    
+    class R53,CF,AG,ALB,ECS,Fargate,RDS,S3,Cognito,CW,RDSInsights aws
+    class NextJS,Frontend,API,Logic app
+    class Primary,Standby data
+    class Cognito security
 ```
 
 ### **Architecture Benefits**
