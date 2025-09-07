@@ -4,6 +4,16 @@
 
 **SpendWise** is a modern, mobile-friendly web application designed to help users track their expenses, analyze spending patterns, and receive AI-powered financial advice. Built with Next.js 14 and TypeScript, it provides a comprehensive solution for personal finance management with an intuitive user interface and powerful analytics.
 
+## Table of Contents
+
+- [Core Features](#core-features)
+- [Technical Architecture](#technical-architecture)
+- [Key Features](#key-features)
+- [API Endpoints](#api-endpoints)
+- [Setup Guide](#setup-guide---prerequisites)
+- [Future Enhancements](#future-enhancements)
+- [AWS Deployment Architecture](#aws-deployment-architecture)
+
 ## Core Features
 
 ### 1. **Transaction Management**
@@ -30,7 +40,6 @@
 - **Pagination**: Efficient handling of large transaction datasets
 - **Summary Statistics**: Filtered results with financial summaries
 
--------
 
 ## Technical Architecture
 
@@ -55,7 +64,7 @@
 - **Connection Pooling**: Sequelize built-in connection management
 - **Seed Data**: Pre-populated with realistic 2024 transaction data
 
--------
+
 
 ## Key Features
 
@@ -91,9 +100,9 @@ The AI advisor is specifically trained for financial guidance:
 - **Goal Setting**: Helps establish and track financial objectives
 - **Habit Building**: Encourages healthy financial behaviors
 
-------
 
-# API Endpoints
+
+## API Endpoints
 
 ### **Transaction Management**
 - `POST /api/transactions` - Create new transaction
@@ -134,11 +143,8 @@ Content-Type: application/json
 }
 ```
 
-------
 
-# Setup Guide
-
-## Prerequisites
+## Setup Guide - Prerequisites
 
 - Node.js 18.18.0+
 - PostgreSQL 12+ installed and running locally
@@ -239,9 +245,8 @@ With this setup, you now have:
 - **Performance Optimized** - Server-side rendering with fresh data
 - **Scalable Architecture** - Easy to add more features
 
--------
 
-# Future Enhancements
+## Future Enhancements
 
 ### **Planned Features**
 1. **User Authentication**: Multi-user support with secure authentication
@@ -262,9 +267,8 @@ With this setup, you now have:
 5. **API Rate Limiting**: Enhanced API security
 6. **Monitoring**: Application performance monitoring
 
-------
 
-# **AWS Deployment Architecture**
+## AWS Deployment Architecture
 
 The following diagram shows how SpendWise would be deployed on AWS using a containerized, scalable architecture:
 
@@ -356,7 +360,7 @@ graph TB
     class Cognito security
 ```
 
-### **Architecture Benefits**
+### Architecture Benefits
 
 - **Scalability**: Auto-scaling based on demand with ECS Fargate
 - **Reliability**: Multi-AZ deployment with automatic failover
