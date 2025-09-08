@@ -259,15 +259,6 @@ With this setup, you now have:
 8. **Investment Tracking**: Portfolio and investment management
 9. **Customize Categories** - Modify the seed data in `./schema.sql`
 
-### **Technical Improvements**
-1. **Real-time Updates**: WebSocket integration for live data
-2. **Offline Support**: Service worker for offline functionality
-3. **Push Notifications**: Budget alerts and reminders
-4. **Advanced Search**: Full-text search with Elasticsearch
-5. **API Rate Limiting**: Enhanced API security
-6. **Monitoring**: Application performance monitoring
-
-
 ## AWS Deployment Architecture
 
 The following diagram shows how SpendWise would be deployed on AWS using a containerized, scalable architecture:
